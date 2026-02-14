@@ -31,15 +31,22 @@
                     <div class="control-group">
                         <label>Low Pass Filter (Hz)</label>
                         <div class="slider-container">
-                            <input type="range" id="lpf-freq" min="20" max="1000" value="100">
-                            <span id="lpf-val">100</span>
+                            <input type="range" id="lpf-freq" min="20" max="2000" value="1000">
+                            <span id="lpf-val">1000</span>
                         </div>
                     </div>
                     <div class="control-group">
-                        <label>Frequency Shift (Pitch)</label>
+                        <label>Speed (Playback Rate)</label>
                         <div class="slider-container">
-                            <input type="range" id="pitch-shift" min="1" max="16" step="1" value="1">
-                            <span id="pitch-val">1x</span>
+                            <input type="range" id="speed-ctrl" min="1" max="16" step="1" value="1">
+                            <span id="speed-val">1x</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Pitch Shift (Semitones)</label>
+                        <div class="slider-container">
+                            <input type="range" id="pitch-shift" min="-24" max="24" step="1" value="0">
+                            <span id="pitch-val">0</span>
                         </div>
                     </div>
                     <div class="control-group">
@@ -51,10 +58,18 @@
                     </div>
                 </div>
 
-                <div class="oscilloscope-card">
-                    <h3>Oscilloscope (3s Window)</h3>
-                    <div id="oscilloscope-container">
-                        <canvas id="oscilloscope-canvas"></canvas>
+                <div class="visualizer-grid">
+                    <div class="oscilloscope-card">
+                        <h3>Oscilloscope (3s Window)</h3>
+                        <div id="oscilloscope-container">
+                            <canvas id="oscilloscope-canvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="spectrogram-card">
+                        <h3>Spectrogram</h3>
+                        <div id="spectrogram-container">
+                            <canvas id="spectrogram-canvas"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>

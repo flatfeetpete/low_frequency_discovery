@@ -10,7 +10,7 @@ export class AudioManager {
         // Processing Nodes
         this.filter = this.ctx.createBiquadFilter();
         this.filter.type = 'lowpass';
-        this.filter.frequency.value = 100;
+        this.filter.frequency.value = 1000;
 
         this.gain = this.ctx.createGain();
         this.gain.gain.value = 1.0;
@@ -18,15 +18,30 @@ export class AudioManager {
         this.analyser = this.ctx.createAnalyser();
         this.analyser.fftSize = 2048;
 
-        // Routing: source -> filter -> analyser -> gain -> destination
+        // Pitch Shifter Node (Async creation)
+        this.pitchNode = null;
+        this.initWorklet();
+
+        // Default Routing (will be fixed once pitchNode is ready)
+        // source -> pitchNode? -> filter -> analyser -> gain -> destination
         this.filter.connect(this.analyser);
         this.analyser.connect(this.gain);
         this.gain.connect(this.ctx.destination);
 
         this.playbackRate = 1.0;
+        this.pitchSemitones = 0;
 
         this.onProgress = null;
         this.onEnded = null;
+    }
+
+    async initWorklet() {
+        try {
+            await this.ctx.audioWorklet.addModule('pitch-shifter-processor.js');
+            this.pitchNode = new AudioWorkletNode(this.ctx, 'pitch-shifter-processor');
+        } catch (e) {
+            console.error('Failed to load pitch-shifter-processor:', e);
+        }
     }
 
     async loadAudio(url) {
@@ -52,8 +67,17 @@ export class AudioManager {
         this.source.buffer = this.audioBuffer;
         this.source.playbackRate.value = this.playbackRate;
 
-        // Connect source to the processing chain
-        this.source.connect(this.filter);
+        // Routing logic
+        if (this.pitchNode) {
+            this.source.connect(this.pitchNode);
+            this.pitchNode.disconnect();
+            this.pitchNode.connect(this.filter);
+
+            const ratio = Math.pow(2, this.pitchSemitones / 12);
+            this.pitchNode.parameters.get('pitchRatio').setTargetAtTime(ratio, this.ctx.currentTime, 0.01);
+        } else {
+            this.source.connect(this.filter);
+        }
 
         const currentSource = this.source;
         currentSource.onended = () => {
@@ -100,6 +124,14 @@ export class AudioManager {
         this.playbackRate = rate;
         if (this.source) {
             this.source.playbackRate.setTargetAtTime(rate, this.ctx.currentTime, 0.01);
+        }
+    }
+
+    setPitchShift(semitones) {
+        this.pitchSemitones = semitones;
+        if (this.pitchNode) {
+            const ratio = Math.pow(2, semitones / 12);
+            this.pitchNode.parameters.get('pitchRatio').setTargetAtTime(ratio, this.ctx.currentTime, 0.01);
         }
     }
 

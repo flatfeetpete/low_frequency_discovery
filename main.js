@@ -1,6 +1,7 @@
 import { AudioManager } from './audioManager.js';
 import { WaveformRenderer } from './waveformRenderer.js';
 import { OscilloscopeRenderer } from './oscilloscopeRenderer.js';
+import { SpectrogramRenderer } from './spectrogramRenderer.js';
 
 const audioManager = new AudioManager();
 const waveformRenderer = new WaveformRenderer(
@@ -10,6 +11,11 @@ const waveformRenderer = new WaveformRenderer(
 const oscilloscopeRenderer = new OscilloscopeRenderer(
     document.getElementById('oscilloscope-canvas'),
     document.getElementById('oscilloscope-container'),
+    audioManager.analyser
+);
+const spectrogramRenderer = new SpectrogramRenderer(
+    document.getElementById('spectrogram-canvas'),
+    document.getElementById('spectrogram-container'),
     audioManager.analyser
 );
 
@@ -27,6 +33,8 @@ const waveformContainer = document.getElementById('waveform-container');
 // Processing UI
 const lpfFreq = document.getElementById('lpf-freq');
 const lpfVal = document.getElementById('lpf-val');
+const speedCtrl = document.getElementById('speed-ctrl');
+const speedVal = document.getElementById('speed-val');
 const pitchShift = document.getElementById('pitch-shift');
 const pitchVal = document.getElementById('pitch-val');
 const volumeCtrl = document.getElementById('volume-ctrl');
@@ -49,8 +57,9 @@ function updateUI() {
     const progress = (current / duration) * 100;
     playhead.style.left = `${progress}%`;
 
-    // Update oscilloscope data
+    // Update real-time visualizers
     oscilloscopeRenderer.update();
+    spectrogramRenderer.update();
 
     if (audioManager.isPlaying || audioManager.ctx.state === 'running') {
         requestAnimationFrame(updateUI);
@@ -60,6 +69,7 @@ function updateUI() {
 // Start rendering loop for oscilloscope constant feedback
 function renderLoop() {
     oscilloscopeRenderer.render();
+    spectrogramRenderer.render();
     requestAnimationFrame(renderLoop);
 }
 renderLoop();
@@ -84,7 +94,7 @@ async function init() {
     }
 }
 
-playPauseBtn.addEventListener('click', async () => {
+const togglePlayPause = async () => {
     if (audioManager.isPlaying) {
         await audioManager.pause();
         playIcon.style.display = 'block';
@@ -97,6 +107,15 @@ playPauseBtn.addEventListener('click', async () => {
         pauseIcon.style.display = 'block';
         statusText.textContent = 'Playing';
         updateUI();
+    }
+};
+
+playPauseBtn.addEventListener('click', togglePlayPause);
+
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlayPause();
     }
 });
 
@@ -123,10 +142,16 @@ lpfFreq.addEventListener('input', (e) => {
     audioManager.setFilterFreq(val);
 });
 
+speedCtrl.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
+    speedVal.textContent = `${val}x`;
+    audioManager.setPlaybackRate(val);
+});
+
 pitchShift.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
-    pitchVal.textContent = `${val}x`;
-    audioManager.setPlaybackRate(val);
+    pitchVal.textContent = val > 0 ? `+${val}` : val;
+    audioManager.setPitchShift(val);
 });
 
 volumeCtrl.addEventListener('input', (e) => {
