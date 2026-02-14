@@ -18,10 +18,10 @@ export class AudioManager {
         this.analyser = this.ctx.createAnalyser();
         this.analyser.fftSize = 2048;
 
-        // Routing: source -> filter -> gain -> analyser -> destination
-        this.filter.connect(this.gain);
-        this.gain.connect(this.analyser);
-        this.analyser.connect(this.ctx.destination);
+        // Routing: source -> filter -> analyser -> gain -> destination
+        this.filter.connect(this.analyser);
+        this.analyser.connect(this.gain);
+        this.gain.connect(this.ctx.destination);
 
         this.playbackRate = 1.0;
 
