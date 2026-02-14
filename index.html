@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Explorer | Low Frequency Discovery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@300;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Audio Explorer</h1>
+            <p class="subtitle">2025-02-10-0800 upstairs with talking.wav</p>
+        </header>
+
+        <main>
+            <div id="loading-overlay" class="overlay">
+                <div class="loader"></div>
+                <p>Decoding Audio...</p>
+            </div>
+
+            <div class="processing-grid">
+                <div class="processing-card">
+                    <h3>Processing</h3>
+                    <div class="control-group">
+                        <label>Low Pass Filter (Hz)</label>
+                        <div class="slider-container">
+                            <input type="range" id="lpf-freq" min="20" max="1000" value="100">
+                            <span id="lpf-val">100</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Frequency Shift (Pitch)</label>
+                        <div class="slider-container">
+                            <input type="range" id="pitch-shift" min="1" max="16" step="1" value="1">
+                            <span id="pitch-val">1x</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Volume</label>
+                        <div class="slider-container">
+                            <input type="range" id="volume-ctrl" min="0" max="2" step="0.1" value="1">
+                            <span id="volume-val">1.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="oscilloscope-card">
+                    <h3>Oscilloscope (3s Window)</h3>
+                    <div id="oscilloscope-container">
+                        <canvas id="oscilloscope-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization-card">
+                <div id="waveform-container">
+                    <canvas id="waveform-canvas"></canvas>
+                    <div id="playhead"></div>
+                </div>
+            </div>
+
+            <div class="controls-card">
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span class="divider">/</span>
+                    <span id="duration">0:00</span>
+                </div>
+
+                <div class="buttons">
+                    <button id="play-pause-btn" class="primary-btn" disabled>
+                        <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                        <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="status-bar">
+                    <span id="status-text">Loading...</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>
